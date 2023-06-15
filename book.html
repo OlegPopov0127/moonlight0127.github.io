@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Book Hotels</title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/cognito.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div class="container mt-3">
+        <h1>Book a Hotel!</h1>
+    </div>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="txtCheckinDate" class="form-label">Checkin Date:</label>
+                <input type="date" id="txtCheckinDate" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label for="txtCheckoutDate" class="form-label">Checkout Date:</label>
+                <input type="date" id="txtCheckoutDate" class="form-control" />
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <button type="button" id="btnBook" class="btn btn-primary">Book Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+
+            cognitoApp.Init();
+            pageLoad();
+
+            $("#btnBook").bind('click', function(event){
+                var btn = $(this)[0];
+
+                const url = new URL(window.location.href);
+                const searchParams = url.searchParams;
+
+                debugger;
+                var checkinDate  = $("#txtCheckinDate").val();
+                var checkoutDate = $("#txtCheckoutDate").val();
+                var hotelIdparam = searchParams.get('hotelId');
+
+                var bookingObj = {
+                    checkinDate: checkinDate,
+                    checkoutDate: checkoutDate,
+                    idToken: currentUserToken.idToken,
+                    hotelId: hotelIdparam
+                };
+            
+                // replace the 'url' attribute below to your API's URL  
+                $.ajax({
+                    url:"https://ucfm5by0ik.execute-api.ap-southeast-2.amazonaws.com/Test/book",
+                    type: 'POST',
+                    beforeSend: function(request) {
+                        request.setRequestHeader('Authorization', 'Bearer '+ currentUserToken.idToken);
+                        request.setRequestHeader('Content-type', 'application/json');
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify(bookingObj),
+                success: function(response) {
+                  
+                    window.location.href="/hotel/user-booking-view.html";
+                }
+                
+            });
+            });
+        });
+    </script>
+</body>
+</html>

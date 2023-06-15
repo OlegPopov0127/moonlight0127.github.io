@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Review Bookings</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-left">
+            <div class="col-md-6">
+                <button id="btnSignIn" class="btn btn-primary me-2">Sign In</button>
+                <button id="btnSignOut" class="btn btn-primary">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5 mb-5">
+        <div class="row mt-4">
+            <div class="table-responsive w-90 mx-auto">
+                <table id="tblHotels" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Hotel Name</th>
+                            <th>City</th>
+                            <th>Customer Name</th>
+                            <th>Customer Phone</th>
+                            <th>Customer Email</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+ 
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- Amazon Cognito JavaScript SDK -->
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <!-- Main JavaScript -->
+    <script src="scripts/main.js"></script>
+    <!-- Cognito JavaScript -->
+    <script src="scripts/cognito.js"></script>
+    <script>
+        $(function () {
+            cognitoApp.Init();
+            pageLoad();
+
+            displayBookings();
+        
+        });
+    
+        function displayBookings()
+        {
+            var table = $("#tblHotels tbody");
+            table.empty();
+            var row = $('<tr>');
+            row.append($('<td>').html('<img src="/hotel/images/spin.gif" />'));
+            table.append(row);
+
+            // replace the 'url' attribute below to your API's URL
+            $.ajax({
+                url: "https://umis7p2wae.execute-api.ap-southeast-2.amazonaws.com/query",
+                type: "get", 
+                data: { 
+                    idToken: currentUserToken.idToken
+                },
+                success: function(response) {
+                    table.empty();
+
+                    $.each(response, function(index,hotel) {
+                        var row = $('<tr>');
+                        row.append($('<td>').css('min-width','300px').text(hotel.hotelName));
+                        row.append($('<td>').text(hotel.cityName));
+                        row.append($('<td>').text(hotel.givenName+' '+hotel.familyName));
+                        row.append($('<td>').text(hotel.phoneNumber));
+                        row.append($('<td>').text(hotel.email));
+                        row.append($('<td>').text(hotel.checkinDate));
+                        row.append($('<td>').text(hotel.checkoutDate));
+
+                        var actionTd=$('<td>');
+                        var approveBtn = $("<button>").attr({
+                            type: "button",
+                            style: "margin-right:10px",
+                            class: "approveButton btn btn-info",
+                            "data-booking-id": hotel.id,
+                            "data-status": 2
+                            });
+                        
+                        approveBtn.text('Confirm');
+                        
+                        actionTd.append(approveBtn);
+
+                        var rejectBtn = $("<button>").attr({
+                        type: "button",
+                        class: "approveButton btn btn-warning",
+                        "data-booking-id": hotel.id,
+                        "data-status": 3
+                        });
+                        
+                        rejectBtn.text('Reject');
+                        actionTd.append(rejectBtn);
+
+                        row.append(actionTd);
+                        table.append(row);
+
+                    });
+                
+                    $(".approveButton").bind('click', function(event){
+
+                        var btnBook = $(this);
+                        var bookingId = btnBook.attr('data-booking-id');
+                        var status = btnBook.attr('data-status');
+                        
+                        // Change the url property and set it to yor API URL
+                        var queryParams = $.param({
+                            bookingId: bookingId,
+                            status: status
+                        });
+
+                        // replace the 'url' attribute below to your API's URL
+                        $.ajax({
+                            url: "https://ka5qkn54wa.execute-api.ap-southeast-2.amazonaws.com/approve?" + queryParams,
+                            type: "POST",
+                            beforeSend: function(request) {
+                                //request.setRequestHeader('Authorization', 'Bearer '+ currentUserToken.idToken);
+                                request.setRequestHeader('Content-type', 'application/json');
+                            },
+                            success: function(response) {
+                                var row = btnBook.closest('tr');
+                                row.addClass("bg-danger");
+                                row.hide(1000, function() {
+                                    row.remove();
+                                });
+                            }
+                        });
+
+                    });
+                }
+                }); 
+        }
+
+    </script>
+</body>

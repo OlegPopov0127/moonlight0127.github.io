@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/cognito.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <title>Upload Photo to API Gateway</title>
+</head>
+
+<body>
+
+    <div class="container my-3">
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-primary me-3" id="btnSignIn">Sign In</button>
+            <button class="btn btn-primary" id="btnSignOut">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- replace the 'action' attribute in the form below to your API's URL -->
+    <div class="container">
+        <form id="upload-form" enctype="multipart/form-data" method="post" action="https://knhnkv97qj.execute-api.ap-southeast-2.amazonaws.com/Test/{admin+}">
+
+            <div class="mb-3">
+                <label for="hotelName" class="form-label">Name:</label>
+                <input type="text" name="hotelName" id="hotelName" maxlength="100" class="form-control" placeholder="Hotel Name" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="hotelRating" class="form-label">Rating:</label>
+                <input type="number" name="hotelRating" id="hotelRating" min="1" max="5" value="5" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="hotelCity" class="form-label">City:</label>
+                <select name="hotelCity" id="hotelCity" class="form-select" required>
+                    <option value="Sydney" selected>Sydney</option>
+                    <option value="London">London</option>
+                    <option value="Paris">Paris</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="hotelPrice" class="form-label">Price:</label>
+                <input type="number" name="hotelPrice" id="hotelPrice" min="1" max="1000" placeholder="0" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="photo" class="form-label">Upload Photo:</label>
+                <input type="file" name="photo" id="photo" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <input type="hidden" name="userId" id="userId" value="">
+                <input type="hidden" name="idToken" id="idToken" value="">
+                <input type="submit" value="Upload" class="btn btn-primary">
+            </div>
+
+        </form>
+    </div>
+
+</body>
+
+<script>
+    $(function () {
+        cognitoApp.Init();
+        pageLoad();
+
+        setAuthHeader();
+        $("#userId").val(currentUserToken.currentUserId);
+        $("#idToken").val(currentUserToken.idToken);
+    });
+</script>
+
+</html>

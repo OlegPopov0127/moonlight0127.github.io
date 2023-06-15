@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <div class="my-4">
+            <button id="btnSignIn" class="btn btn-primary">Sign In</button>
+            <button id="btnSignOut" class="btn btn-danger ms-2" style="display: none;">Sign Out</button>
+        </div>
+        
+        <div class="my-4">
+            <a id="btnAddHotel" href="/hotel/addHotel.html" class="btn btn-success">Add Hotel</a>
+        </div>
+
+        <table id="divHotelList" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">City</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Rating</th>
+                    <th scope="col">Image</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/cognito.js"></script>
+    <script>
+        $(function () {
+            cognitoApp.Init();
+            pageLoad();
+
+            populateHotelsList(currentUserToken.idToken);
+        });
+
+        function populateHotelsList(idToken) {
+            var s3BaseUrl="https://hotel-admin-bucket.s3.ap-southeast-2.amazonaws.com";
+            
+            // replace the 'url' attribute below to your API's URL
+            $.ajax({
+                url: "https://93k8z5w51h.execute-api.ap-southeast-2.amazonaws.com/Test/{listadminhotels+}",
+                type:'get',
+                data: {token:idToken},
+                dataType: 'json',
+                success: function(response) {
+                    var table = $("#divHotelList tbody");
+                    $.each(response.Hotels, function(index,hotel) {
+                        var row = $('<tr>');
+                        row.append($('<td>').text(hotel.Name));
+                        row.append($('<td>').text(hotel.CityName));
+                        row.append($('<td>').text(hotel.Price));
+                        row.append($('<td>').text(hotel.Rating));
+
+                        var imageTag = $('<img>');
+                        imageTag.attr('src' , s3BaseUrl.concat('/', hotel.FileName));
+                        imageTag.css('width', 300);
+                        row.append($('<td>').append(imageTag));
+                        table.append(row);
+                    });
+                },
+            });
+        }
+    </script>
+</body>
+</html>

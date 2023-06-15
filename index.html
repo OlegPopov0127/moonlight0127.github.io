@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home Page</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-left">
+            <div class="col-md-6">
+                <button id="btnSignIn" class="btn btn-primary me-2">Sign In</button>
+                <button id="btnSignOut" class="btn btn-primary">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- Amazon Cognito JavaScript SDK -->
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <!-- Main JavaScript -->
+    <script src="scripts/main.js"></script>
+    <!-- Cognito JavaScript -->
+    <script src="scripts/cognito.js"></script>
+    <script>
+        $(function () {
+            cognitoApp.Init();
+            pageLoad();
+            createNav();
+        });
+
+        function createNav()
+        {
+ 
+            if (currentUserToken)
+            {
+                if (currentUserToken.role !=="")
+                {
+                    if (currentUserToken.role=="Admin")
+                    {
+                        window.location.href="/hotel/admin.html";
+                    }
+
+                    if (currentUserToken.role=="HotelManager")
+                    {
+                        window.location.href="/hotel/review-bookings.html";
+                    }
+                }
+                else
+                {
+                    if (currentUserToken.currentUserId !== "")
+                    {
+                        window.location.href="/hotel/search.html";
+                    }
+                }
+            }
+        }
+
+
+    </script>
+</body>
+</html>
